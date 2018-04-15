@@ -1,4 +1,4 @@
-Code for the AAAI18 paper [PixelLink: Detecting Scene Text via Instance Segmentation](https://arxiv.org/abs/1801.01315) by Dan Deng, Haifeng Liu, Xuelong Li, and Deng Cai.
+Code for the AAAI18 paper [PixelLink: Detecting Scene Text via Instance Segmentation](https://arxiv.org/abs/1801.01315), by Dan Deng, Haifeng Liu, Xuelong Li, and Deng Cai.
 # Installation
 ## Clone the repo
 ```
