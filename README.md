@@ -1,6 +1,6 @@
 Code for the AAAI18 paper [PixelLink: Detecting Scene Text via Instance Segmentation](https://arxiv.org/abs/1801.01315).
 # Installation
-## Clone the repo to your computer:
+## Clone the repo
 ```
 git clone --recursive git@github.com:ZJULearning/pixel_link.git
 ```
@@ -13,7 +13,7 @@ export PYTHONPATH=${path_to_pixel_link}/pylib/src:$PYTHONPATH
 ```
 
 ## Prerequisites
- Tested on Ubuntu14.04 and 16.04 with:
+ (Only tested on) Ubuntu14.04 and 16.04 with:
 * Python 2.7
 * Tensorflow-gpu >= 1.1
 * opencv2
