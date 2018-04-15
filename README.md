@@ -91,7 +91,7 @@ DATASET_DIR=$HOME/dataset/pixel_link/icdar2015
 ```
 For example, `./scripts/train.sh 0,1,2 8`. 
 
-The existing training strategy is configured for icdar2015, modify it if necessary.  A lot of training or model options can be configured via `config.py`, try it yourself if you are interested.
+The existing training strategy in `scripts/train.sh` is configured for icdar2015, modify it if necessary.  A lot of training or model options  are available in `config.py`, try it yourself if you are interested.
 
 # Acknowlegement
 ![](http://www.cad.zju.edu.cn/templets/default/imgzd/logo.jpg)
