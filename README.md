@@ -34,7 +34,7 @@ source activate pixel_link
 * PixelLink + VGG16 4s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w)
 * PixelLink + VGG16 2s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw)
 
-Unzip the downloaded model. It contains 4 files:
+Unzip the downloaded model zip file, which should contain 4 files:
 
 * config.py
 * model.ckpt-xxx.data-00000-of-00001
@@ -68,14 +68,14 @@ For example:
  ./scripts/test_any.sh 3 ~/temp/conv3_3/model.ckpt-38055 ~/dataset/ICDAR2015/Challenge4/ch4_training_images
 ```
 
-The program will visualize the detection results directly on images.   If the detection result is not satisfying:
+The program will visualize the detection results directly on images.   If the detection result is not satisfying, try to:
 
 1. Adjust the inference parameters like `eval_image_width`, `eval_image_height`, `pixel_conf_threshold`, `link_conf_threshold`.
 2. Or train your own model.
 
 # Training
 ## Converting the dataset to tfrecords files
-Scripts for converting ICDAR2015 and SynthText dataset have been provided in the `datasets` directory.
+Scripts for converting ICDAR2015 and SynthText datasets have been provided in the `datasets` directory.
  It not hard to write a converting script  for your own dataset.
 
 ## Train your own model
@@ -91,7 +91,7 @@ DATASET_DIR=$HOME/dataset/pixel_link/icdar2015
 ```
 For example, `./scripts/train.sh 0,1,2 8`. 
 
-The existing training strategy is configured for icdar2015, modify it if necessary.
+The existing training strategy is configured for icdar2015, modify it if necessary.  A lot of training or model options can be configured via `config.py`, try it yourself if you are interested.
 
 # Acknowlegement
 ![](http://www.cad.zju.edu.cn/templets/default/imgzd/logo.jpg)
