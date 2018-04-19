@@ -40,6 +40,7 @@ max_shorter_side = np.infty
 decode_method = pixel_link.DECODE_METHOD_join
 min_area = 300
 min_height = 10
+border_threshold = 3
 #====================Post-processing params END=======================
 #=====================================================================
 
@@ -57,28 +58,14 @@ feat_fuse_type = pixel_link_symbol.FUSE_TYPE_cascade_conv1x1_upsample_sum
 pixel_neighbour_type = pixel_link.PIXEL_NEIGHBOUR_TYPE_8
 #pixel_neighbour_type = pixel_link.PIXEL_NEIGHBOUR_TYPE_4
 
-# model_type = pixel_link_symbol.MODEL_TYPE_vgg16
-# feat_layers = ['conv1_2','conv2_2', 'conv3_3', 'conv4_3', 'conv5_3', 'fc7']
-# strides = [1]
-
-# model_type = pixel_link_symbol.MODEL_TYPE_vgg16
-# feat_layers = ['pool1', 'pool2', 'pool3', 'pool4', 'fc7']
-# strides = [2]
 
 #model_type = pixel_link_symbol.MODEL_TYPE_vgg16
 #feat_layers = ['conv2_2', 'conv3_3', 'conv4_3', 'conv5_3', 'fc7']
 #strides = [2]
-
 model_type = pixel_link_symbol.MODEL_TYPE_vgg16
 feat_layers = ['conv3_3', 'conv4_3', 'conv5_3', 'fc7']
 strides = [4]
 
-# model_type = pixel_link_symbol.MODEL_TYPE_vgg16_no_dilation
-# feat_layers = ['conv2_2', 'conv3_3', 'conv4_3', 'conv5_3', 'fc7']
-# strides = [2]
-
-
-# pixel_cls_weight_method = pixel_link.PIXEL_CLS_WEIGHT_all_ones
 pixel_cls_weight_method = pixel_link.PIXEL_CLS_WEIGHT_bbox_balanced
 bbox_border_width = 1
 pixel_cls_border_weight_lambda = 1.0
@@ -126,10 +113,10 @@ def _set_image_shape(shape):
     global train_image_shape
     global score_map_shape
     global image_shape
-
+    
     assert w % 4 == 0
     assert h % 4 == 0
-
+    
     train_image_shape = [h, w]
     score_map_shape = (h / strides[0], w / strides[0])
     image_shape = train_image_shape
@@ -141,21 +128,21 @@ def _set_batch_size(bz):
 def _set_seg_th(pixel_conf_th, link_conf_th):
     global pixel_conf_threshold
     global link_conf_threshold
-
+    
     pixel_conf_threshold = pixel_conf_th
     link_conf_threshold = link_conf_th
-
-
+    
+    
 def  _set_train_with_ignored(train_with_ignored_):
-    global train_with_ignored
+    global train_with_ignored    
     train_with_ignored = train_with_ignored_
 
-
-def init_config(image_shape, batch_size = 1,
-                weight_decay = 0.0005,
-                num_gpus = 1,
-                pixel_conf_threshold = 0.8,
-                link_conf_threshold = 0.8):
+    
+def init_config(image_shape, batch_size = 1, 
+                weight_decay = 0.0005, 
+                num_gpus = 1, 
+                pixel_conf_threshold = 0.6,
+                link_conf_threshold = 0.9):
     _set_seg_th(pixel_conf_threshold, link_conf_threshold)
     _set_weight_decay(weight_decay)
     _set_image_shape(image_shape)
@@ -163,42 +150,42 @@ def init_config(image_shape, batch_size = 1,
     #init batch size
     global gpus
     gpus = util.tf.get_available_gpus(num_gpus)
-
+    
     global num_clones
     num_clones = len(gpus)
-
+    
     global clone_scopes
     clone_scopes = ['clone_%d'%(idx) for idx in xrange(num_clones)]
-
+    
     _set_batch_size(batch_size)
-
+    
     global batch_size_per_gpu
     batch_size_per_gpu = batch_size / num_clones
     if batch_size_per_gpu < 1:
         raise ValueError('Invalid batch_size [=%d], \
                 resulting in 0 images per gpu.'%(batch_size))
-
+    
     global num_neighbours
     num_neighbours = pixel_link.get_neighbours_fn()[1]
 
-
+    
 def print_config(flags, dataset, save_dir = None, print_to_file = True):
     def do_print(stream=None):
         print(util.log.get_date_str(), file = stream)
         print('\n# =========================================================================== #', file=stream)
         print('# Training flags:', file=stream)
         print('# =========================================================================== #', file=stream)
-
+        
         def print_ckpt(path):
             ckpt = util.tf.get_latest_ckpt(path)
             if ckpt is not None:
                 print('Resume Training from : %s'%(ckpt), file = stream)
                 return True
             return False
-
+        
         if not print_ckpt(flags.train_dir):
-            print_ckpt(flags.checkpoint_path)
-
+            print_ckpt(flags.checkpoint_path)                
+            
         pprint(flags.__flags, stream=stream)
 
         print('\n# =========================================================================== #', file=stream)
@@ -209,7 +196,7 @@ def print_config(flags, dataset, save_dir = None, print_to_file = True):
             var = vars[key]
             if util.dtype.is_number(var) or util.dtype.is_str(var) or util.dtype.is_list(var) or util.dtype.is_tuple(var):
                 pprint('%s=%s'%(key, str(var)), stream = stream)
-
+            
         print('\n# =========================================================================== #', file=stream)
         print('# Training | Evaluation dataset files:', file=stream)
         print('# =========================================================================== #', file=stream)
@@ -217,21 +204,21 @@ def print_config(flags, dataset, save_dir = None, print_to_file = True):
         pprint(sorted(data_files), stream=stream)
         print('', file=stream)
     do_print(None)
-
+    
     if print_to_file:
         # Save to a text file as well.
         if save_dir is None:
             save_dir = flags.train_dir
-
+            
         util.io.mkdir(save_dir)
         path = util.io.join_path(save_dir, 'training_config.txt')
         with open(path, "a") as out:
             do_print(out)
-
+    
 def load_config(path):
     if not util.io.is_dir(path):
         path = util.io.get_dir(path)
-
+        
     config_file = util.io.join_path(path, 'config.py')
     if util.io.exists(config_file):
         tf.logging.info('loading config.py from %s'%(config_file))
