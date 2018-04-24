@@ -31,10 +31,10 @@ source activate pixel_link
 
 # Testing
 ## Download the pretrained model
-* [PixelLink + VGG16 4s](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w), trained on IC15
-* [PixelLink + VGG16 2s](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw), trained on IC15
+* PixelLink + VGG16 4s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w)
+* PixelLink + VGG16 2s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw)
 
-Unzip the downloaded model zip file, which should contain 4 files:
+Unzip the downloaded model. It contains 4 files:
 
 * config.py
 * model.ckpt-xxx.data-00000-of-00001
@@ -44,6 +44,12 @@ Unzip the downloaded model zip file, which should contain 4 files:
 Denote their parent directory as ${model_path}.
 
 ## Test on ICDAR2015
+The reported results on ICDAR2015  are:
+|Model|Recall|Precision|F-mean|
+|---|---|---|---|
+|PixelLink+VGG16 2s|82.0|85.5|83.7|
+|PixelLink+VGG16 4s|81.7|82.9|82.3|
+
 Suppose you have downloaded the [ICDAR2015 dataset](http://rrc.cvc.uab.es/?ch=4&com=downloads), execute the following commands to test the model on ICDAR2015:
 ```
 cd ${pixel_link_root}
@@ -56,6 +62,11 @@ For example:
 
 The program will create a zip file of  detection results, which can be submitted to the ICDAR2015 server directly.
 The detection results can be visualized via `scripts/vis.sh`.
+
+Here are some samples:
+![./samples/img_333_pred.jpg](./samples/img_333_pred.jpg)
+![./samples/img_249_pred.jpg](./samples/img_249_pred.jpg)
+
 
 ## Test on any images
 Put the images to be tested in a single directory, i.e., ${image_dir}. Then:

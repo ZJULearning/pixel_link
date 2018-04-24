@@ -3,7 +3,7 @@ set -e
 export CUDA_VISIBLE_DEVICES=$1
 IMG_PER_GPU=$2
 
-TRAIN_DIR=${HOME}/models/pixel_link_3
+TRAIN_DIR=${HOME}/models/pixel_link
 
 # get the number of gpus
 OLD_IFS="$IFS" 
