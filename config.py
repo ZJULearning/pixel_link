@@ -40,7 +40,6 @@ max_shorter_side = np.infty
 decode_method = pixel_link.DECODE_METHOD_join
 min_area = 300
 min_height = 10
-border_threshold = 3
 #====================Post-processing params END=======================
 #=====================================================================
 
