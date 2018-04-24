@@ -5,7 +5,7 @@ Code for the AAAI18 paper [PixelLink: Detecting Scene Text via Instance Segmenta
 git clone --recursive git@github.com:ZJULearning/pixel_link.git
 ```
 
-Denote the root directory path of pixel_link by ${pixel_link_root}. 
+Denote the root directory path of pixel_link by `${pixel_link_root}`. 
 
 Add the path of `${pixel_link_root}/pylib/src` to your `PYTHONPATH`:
 ```
@@ -31,8 +31,8 @@ source activate pixel_link
 
 # Testing
 ## Download the pretrained model
-* PixelLink + VGG16 4s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w)
-* PixelLink + VGG16 2s, trained on IC15:[Baidu Net Disk](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw)
+* [PixelLink + VGG16 4s](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w), trained on IC15
+* [PixelLink + VGG16 2s](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw), trained on IC15
 
 Unzip the downloaded model. It contains 4 files:
 
@@ -41,10 +41,11 @@ Unzip the downloaded model. It contains 4 files:
 * model.ckpt-xxx.index  
 * model.ckpt-xxx.meta
 
-Denote their parent directory as ${model_path}.
+Denote their parent directory as `${model_path}`.
 
 ## Test on ICDAR2015
 The reported results on ICDAR2015  are:
+
 |Model|Recall|Precision|F-mean|
 |---|---|---|---|
 |PixelLink+VGG16 2s|82.0|85.5|83.7|
@@ -69,7 +70,7 @@ Here are some samples:
 
 
 ## Test on any images
-Put the images to be tested in a single directory, i.e., ${image_dir}. Then:
+Put the images to be tested in a single directory, i.e., `${image_dir}`. Then:
 ```
 cd ${pixel_link_root}
 ./scripts/test_any.sh ${GPU_ID} ${model_path}/model.ckpt-xxx ${image_dir}
