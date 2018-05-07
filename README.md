@@ -2,6 +2,8 @@ Code for the AAAI18 paper [PixelLink: Detecting Scene Text via Instance Segmenta
 
 Contributions to this repo are welcome, e.g., some other backbone networks (including the model definition and pretrained models).
 
+PLEASE CHECK EXSITING ISSUES BEFORE OPENNING YOUR OWN ONE. IF A SAME OR SIMILAR ISSUE HAD BEEN POSTED BEFORE, JUST REFER TO IT, AND DO NO OPEN A NEW ONE.
+
 # Installation
 ## Clone the repo
 ```
