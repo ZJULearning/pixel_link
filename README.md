@@ -36,8 +36,8 @@ source activate pixel_link
 
 # Testing
 ## Download the pretrained model
-* [PixelLink + VGG16 4s](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w), trained on IC15
-* [PixelLink + VGG16 2s](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw), trained on IC15
+* PixelLink + VGG16 4s [Baidu Netdisk](https://pan.baidu.com/s/1jsOc-cutC4GyF-wMMyj5-w) | [GoogleDrive](https://drive.google.com/file/d/19mlX5W8OBalSjhf5oTTS6qEq2eAU8Tg9/view?usp=sharing), trained on IC15
+* PixelLink + VGG16 2s [Baidu Netdisk](https://pan.baidu.com/s/1asSFsRSgviU2GnvGt2lAUw) | [GoogleDrive](https://drive.google.com/file/d/1QleZxu_6PSI733G7wzbqeFtc8A3-LmWW/view?usp=sharing), trained on IC15
 
 Unzip the downloaded model. It contains 4 files:
 
