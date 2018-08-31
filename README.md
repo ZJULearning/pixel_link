@@ -14,7 +14,7 @@ Denote the root directory path of pixel_link by `${pixel_link_root}`.
 
 Add the path of `${pixel_link_root}/pylib/src` to your `PYTHONPATH`:
 ```
-export PYTHONPATH=${path_to_pixel_link}/pylib/src:$PYTHONPATH
+export PYTHONPATH=${pixel_link_root}/pylib/src:$PYTHONPATH
 ```
 
 ## Prerequisites
