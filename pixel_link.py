@@ -280,7 +280,6 @@ def decode_image(pixel_scores, link_scores,
         raise ValueError('Unknow decode method:%s'%(config.decode_method))
 
 
-import pyximport; pyximport.install()    
 from pixel_link_decode import decode_image_by_join
 
 def min_area_rect(cnt):

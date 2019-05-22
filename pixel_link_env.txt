@@ -32,7 +32,6 @@ dependencies:
   - backports.functools-lru-cache==1.5
   - bottle==0.12.13
   - cycler==0.10.0
-  - cython==0.28.2
   - enum34==1.1.6
   - kiwisolver==1.0.1
   - matplotlib==2.2.2
