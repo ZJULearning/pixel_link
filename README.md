@@ -30,7 +30,7 @@ Anaconda is recommended to for an easier installation:
 1. Install [Anaconda](https://anaconda.org/)
 2. Create and activate the required virtual environment by:
 ```
-conda env create --file pixel_link_env.txt
+conda env create --file pixel_link_env.yml
 source activate pixel_link
 ```
 
