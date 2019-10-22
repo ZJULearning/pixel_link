@@ -109,7 +109,7 @@ def test():
         
         for image_name in files:
             file_path = util.io.join_path(FLAGS.dataset_dir, image_name)
-            image_data = util.img.imread(file_path)
+            image_data = util.img.imread(file_path, rgb=True)
             link_scores, pixel_scores, mask_vals = sess.run(
                     [net.link_pos_scores, net.pixel_pos_scores, masks],
                     feed_dict = {image: image_data})
