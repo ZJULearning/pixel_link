@@ -194,7 +194,7 @@ class PixelLinkNet(object):
     def build_loss(self, pixel_cls_labels, pixel_cls_weights, 
                         pixel_link_labels, pixel_link_weights,
                         do_summary = True
-                        ):      
+                        ):
         """
         The loss consists of two parts: pixel_cls_loss + link_cls_loss, 
             and link_cls_loss is calculated only on positive pixels
@@ -231,7 +231,7 @@ class PixelLinkNet(object):
             n_neg = tf.cast(n_neg, tf.int32)
             def has_neg():
                 neg_conf = tf.boolean_mask(scores, neg_mask)
-                vals, _ = tf.nn.top_k(-neg_conf, k=n_neg)
+                vals, _ = tf.nn.top_k(-neg_conf, k=n_neg)  # victorx: hard negative means smaller neg_conf value, hence the - sign
                 threshold = vals[-1]# a negtive value
                 selected_neg_mask = tf.logical_and(neg_mask, scores <= -threshold)
                 return selected_neg_mask

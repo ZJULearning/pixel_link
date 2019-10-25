@@ -133,13 +133,14 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
         
         bbox_points = zip(bbox_xs, bbox_ys)
         bbox_contours = util.img.points_to_contours(bbox_points)
+        # border_width = -1 means fill the interior
         util.img.draw_contours(bbox_mask, bbox_contours, idx = -1, 
                                color = 1, border_width = -1)
         
         bbox_masks.append(bbox_mask)
         
         if labels[bbox_idx] == text_label:
-            pos_mask += bbox_mask
+            pos_mask += bbox_mask  # basically pos_mask contains all individual bounding boxes
         
     # treat overlapped in-bbox pixels as negative, 
     # and non-overlapped  ones as positive
@@ -149,6 +150,7 @@ def cal_gt_for_single_image(normed_xs, normed_ys, labels):
     ## add all bbox_maskes, find non-overlapping pixels
     sum_mask = np.sum(bbox_masks, axis = 0)
     not_overlapped_mask = sum_mask == 1
+    #TBD: isn't not_overlapped_mask the same as pos_mask?
     
     
     ## gt and weight calculation
@@ -359,7 +361,9 @@ def mask_to_bboxes(mask, image_shape =  None, min_area = None,
             continue
         cnt = cnts[0]
         rect, rect_area = min_area_rect(cnt)
-        
+
+        # rect is [cx, cy, w, h, theta]
+
         w, h = rect[2:-1]
         if min(w, h) < min_height:
             continue

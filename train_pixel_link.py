@@ -76,7 +76,8 @@ def config_initialization():
         log_file = 'log_train_pixel_link_%d_%d.log'%image_shape, 
                     log_path = FLAGS.train_dir, stdout = False, mode = 'a')
     
-    
+    # if there is a config.py in train_dir, use it to replace current one, otherwise copy current config.py to there
+    # this basically means we can use the same config.py if we need to resume training in future
     config.load_config(FLAGS.train_dir)
             
     config.init_config(image_shape, 

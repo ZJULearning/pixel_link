@@ -99,3 +99,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+/.idea
+/checkpoint
+/conda_venv
+/output
+/pretrained
+/train_data_viz

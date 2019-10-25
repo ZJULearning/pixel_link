@@ -27,7 +27,7 @@ crop_aspect_ratio_range = (0.5, 2.)  # Distortion ratio during cropping.
 area_range = [0.1, 1]
 flip = False
 using_shorter_side_filtering=True
-min_shorter_side = 10
+min_shorter_side = 6
 max_shorter_side = np.infty
 #====================Pre-processing params END========================
 #=====================================================================
@@ -38,8 +38,8 @@ max_shorter_side = np.infty
 #=====================================================================
 #====================Post-processing params START=====================
 decode_method = pixel_link.DECODE_METHOD_join
-min_area = 300
-min_height = 10
+min_area = 100
+min_height = 6
 #====================Post-processing params END=======================
 #=====================================================================
 

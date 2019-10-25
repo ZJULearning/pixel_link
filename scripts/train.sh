@@ -3,7 +3,7 @@ set -e
 export CUDA_VISIBLE_DEVICES=$1
 IMG_PER_GPU=$2
 
-TRAIN_DIR=${HOME}/models/pixel_link
+TRAIN_DIR=${PWD}/checkpoint
 
 # get the number of gpus
 OLD_IFS="$IFS" 
@@ -18,8 +18,8 @@ BATCH_SIZE=`expr $NUM_GPUS \* $IMG_PER_GPU`
 #DATASET=synthtext
 #DATASET_PATH=SynthText
 
-DATASET=icdar2015
-DATASET_DIR=$HOME/dataset/pixel_link/icdar2015
+DATASET=street_number
+DATASET_DIR=$HOME/workspace/datasets/scene_text/street_number_recognition/
 
 python train_pixel_link.py \
             --train_dir=${TRAIN_DIR} \
