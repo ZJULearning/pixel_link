@@ -108,7 +108,7 @@ def watching_and_evaluate(args):
 def one_off_evaluate(args):
     args.checkpoint_folder, checkpoint_base_name = args.checkpoint_path.rsplit('/', 1)
     recall, precision, fscore = eval_with_checkpoint(checkpoint_base_name, args)
-    print('recall=%, prections=%, fscore=%' % (recall, precision, fscore))
+    print('recall=%.6f, prections=%.6f, fscore=.6f' % (recall, precision, fscore))
 
 
 def log_result_to_file(recall, precision, fscore, latest_global_step, args):

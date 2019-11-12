@@ -10,6 +10,7 @@ FUSE_TYPE_cascade_conv1x1_128_upsamle_sum_conv1x1_2 = \
 FUSE_TYPE_cascade_conv1x1_128_upsamle_concat_conv1x1_2 = \
                             'cascade_conv1x1_128_upsamle_concat_conv1x1_2'
 
+
 class PixelLinkNet(object):
     def __init__(self, inputs, is_training):
         self.inputs = inputs
