@@ -1,8 +1,13 @@
 import tensorflow as tf
+
+from .mobilenet import mobilenet_v2
+
+
 slim = tf.contrib.slim
 
 MODEL_TYPE_vgg16 = 'vgg16'
 MODEL_TYPE_vgg16_no_dilation = 'vgg16_no_dilation'
+MODEL_TYPE_mobilenetv2 = 'mobilenetv2'
 
 FUSE_TYPE_cascade_conv1x1_upsample_sum = 'cascade_conv1x1_upsample_sum'
 FUSE_TYPE_cascade_conv1x1_128_upsamle_sum_conv1x1_2 = \
@@ -21,7 +26,26 @@ class PixelLinkNet(object):
         
     def _build_network(self):
         import config
-        if config.model_type == MODEL_TYPE_vgg16:
+        if config.model_type == MODEL_TYPE_mobilenetv2:
+            # keep this arg_scope code section such that self.arg_scope is set to
+            # the correct arg_scope, as it will be used later in the fusion layer
+            with slim.arg_scope([slim.conv2d],
+                        activation_fn=tf.nn.relu,
+                        weights_regularizer=slim.l2_regularizer(config.weight_decay),
+                        weights_initializer= tf.contrib.layers.xavier_initializer(),
+                        biases_initializer = tf.zeros_initializer()):
+                with slim.arg_scope([slim.conv2d, slim.max_pool2d],
+                                    padding='SAME') as sc:
+                    self.arg_scope = sc
+
+            with slim.arg_scope([slim.conv2d],
+                        weights_regularizer=slim.l2_regularizer(config.weight_decay),
+                        weights_initializer= tf.contrib.layers.xavier_initializer(),
+                        biases_initializer = tf.zeros_initializer()):
+                # set num_classes to 0 will remove the last logit layer
+                self.net, self.end_points = mobilenet_v2.mobilenet(self.inputs, num_classes=0)
+
+        elif config.model_type == MODEL_TYPE_vgg16:
             from nets import vgg
             with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,

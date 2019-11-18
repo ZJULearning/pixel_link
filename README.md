@@ -113,7 +113,3 @@ The existing training strategy in `scripts/train.sh` is configured for icdar2015
 # Acknowlegement
 ![](http://www.cad.zju.edu.cn/templets/default/imgzd/logo.jpg)
 ![](http://www.cvte.com/images/logo.png)
-
-
-#My notes
- * have to add the pylib/src to PYTHONPATH

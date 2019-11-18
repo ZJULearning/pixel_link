@@ -4,6 +4,7 @@ export CUDA_VISIBLE_DEVICES=$1
 IMG_PER_GPU=$2
 
 TRAIN_DIR=${PWD}/checkpoint
+mkdir -p ${TRAIN_DIR}
 
 # get the number of gpus
 OLD_IFS="$IFS" 
@@ -34,7 +35,8 @@ python train_pixel_link.py \
             --dataset_split_name=train \
             --max_number_of_steps=100\
             --checkpoint_path=${CKPT_PATH} \
-            --using_moving_average=1
+            --using_moving_average=1 \
+            2>&1 | tee -a ${TRAIN_DIR}/warmup.log
 
 python train_pixel_link.py \
             --train_dir=${TRAIN_DIR} \
@@ -48,6 +50,6 @@ python train_pixel_link.py \
             --dataset_name=${DATASET} \
             --dataset_split_name=train \
             --checkpoint_path=${CKPT_PATH} \
-            --using_moving_average=1\
-            2>&1 | tee -a ${TRAIN_DIR}/log.log                        
+            --using_moving_average=1 \
+            2>&1 | tee -a ${TRAIN_DIR}/log.log
 

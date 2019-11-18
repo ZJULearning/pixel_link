@@ -15,6 +15,14 @@ import subprocess
 import time
 import os
 
+# this script itself only use tensorflow for creating tf.summary
+# so no GPU is required. But we will require a GPU,
+# which is to be specified in the cuda_visible_devices command option,  to do the inference later.
+
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+import tensorflow as tf
+tf.enable_eager_execution()
+
 EVALUATION_INTERVAL_IN_MINUTES = 20
 
 
@@ -73,10 +81,17 @@ def get_latest_checkpoint(checkpoint_folder):
     """
 
     :param checkpoint_folder:
-    :return: a tuple of  latest_checkpoint_base_name, latest_global_step
+    :return: None  if there is no any checkpoint in the folder yet,
+    otherwise a tuple of  latest_checkpoint_base_name, latest_global_step
+
+
     """
     step_number_regex = re.compile(r'.*model\.ckpt-(\d*)\.index')
     step_numbers = [int(step_number_regex.match(f).group(1)) for f in glob.glob('%s/model.ckpt-*.index' % checkpoint_folder)]
+
+    if len(step_numbers) == 0:
+        return None
+
     latest_global_step = sorted(step_numbers)[-1]
     latest_checkpoint_base_name = 'model.ckpt-%s' % latest_global_step
     return latest_checkpoint_base_name, latest_global_step
@@ -90,17 +105,24 @@ def main(args):
 
 
 def watching_and_evaluate(args):
+    tf_summary_writer = tf.contrib.summary.create_file_writer(args.checkpoint_folder)
+
     last_evaluated_global_step = None
     while True:
-        latest_checkpoint_base_name, latest_global_step = get_latest_checkpoint(args.checkpoint_folder)
-        if last_evaluated_global_step != latest_global_step:
-            print('evaluate with %s' % latest_checkpoint_base_name)
-            recall, precision, fscore = eval_with_checkpoint(latest_checkpoint_base_name, args)
+        res = get_latest_checkpoint(args.checkpoint_folder)
+        if res is not None:
+            latest_checkpoint_base_name, latest_global_step = res
+            # avoid evaluating on the very first checkpoint
+            if latest_global_step > 0 and last_evaluated_global_step != latest_global_step:
+                print('evaluate with %s' % latest_checkpoint_base_name)
+                recall, precision, fscore = eval_with_checkpoint(latest_checkpoint_base_name, args)
 
-            # append result to fscrore.csv
-            log_result_to_file(recall, precision, fscore, latest_global_step, args)
+                # append result to fscrore.csv
+                log_result_to_file(recall, precision, fscore, latest_global_step, args)
+                log_result_for_tensorboard(recall, precision, fscore, latest_global_step, tf_summary_writer)
 
-            last_evaluated_global_step = latest_global_step
+                last_evaluated_global_step = latest_global_step
+
         print('sleep ...')
         time.sleep(EVALUATION_INTERVAL_IN_MINUTES * 60)
 
@@ -117,13 +139,20 @@ def log_result_to_file(recall, precision, fscore, latest_global_step, args):
     file(fscore_csv_fpath, 'a').write(row + '\n')
 
 
+def log_result_for_tensorboard(recall, precision, fscore, step, tf_summary_writer):
+    with tf_summary_writer.as_default(), tf.contrib.summary.always_record_summaries():
+        tf.contrib.summary.scalar("val/recall", recall, step=step)
+        tf.contrib.summary.scalar("val/precision", precision, step=step)
+        tf.contrib.summary.scalar("val/fscore", fscore, step=step)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-g",
         "--cuda_visible_devices",
         default='2',
-        help='by default we do not use GPU because we assume all GPUs are already being used by the training process',
+        help='Specify a gpu id which is not used by the training job',
     )
     parser.add_argument(
         "-c",
