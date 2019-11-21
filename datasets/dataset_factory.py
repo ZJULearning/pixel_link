@@ -58,6 +58,21 @@ street_number = DatasetConfig(
     }
 )
 
+synthesized_149k_and_street_number_train = DatasetConfig(
+    file_pattern='*.tfrecord',
+    split_sizes={
+        'train': 149107 + 576,
+    }
+)
+
+synthesized_149k = DatasetConfig(
+    file_pattern='bbox_clipped_within_image_boundary.tfrecord',
+    split_sizes={
+        'train': 149107,
+    }
+)
+
+
 datasets_map = {
     'icdar2013': icdar2013,
     'icdar2015': icdar2015,
@@ -66,6 +81,8 @@ datasets_map = {
     'tr400': tr400,
     'synthtext': synthtext,
     'street_number': street_number,
+    'synthesized_149k_and_street_number_train': synthesized_149k_and_street_number_train,
+    'synthesized_149k': synthesized_149k,
 }
 
 

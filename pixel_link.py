@@ -363,7 +363,6 @@ def mask_to_bboxes(mask, image_shape =  None, min_area = None,
         rect, rect_area = min_area_rect(cnt)
 
         # rect is [cx, cy, w, h, theta]
-
         w, h = rect[2:-1]
         if min(w, h) < min_height:
             continue

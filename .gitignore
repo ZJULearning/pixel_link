@@ -107,3 +107,5 @@ ENV/
 /train_data_viz
 /conda_venv.tf1.0
 /checkpoint.sav
+/checkpoints_worth_saving
+/temp

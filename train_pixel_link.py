@@ -191,12 +191,16 @@ def create_clones(batch_queue):
     with tf.device('/cpu:0'):
         global_step = slim.create_global_step()
         learning_rate = tf.constant(FLAGS.learning_rate, name='learning_rate')
-        optimizer = tf.train.MomentumOptimizer(learning_rate, 
-                               momentum=FLAGS.momentum, name='Momentum')
-
         tf.summary.scalar('config/learning_rate', learning_rate)
+
+        if getattr(config, 'optimizer', 'Momentum') == 'Adam':
+            optimizer = tf.train.AdamOptimizer(learning_rate, name='Adam')
+        else:
+            optimizer = tf.train.MomentumOptimizer(learning_rate, momentum=FLAGS.momentum, name='Momentum')
+        print('Using %s optimizer' % optimizer.get_name())
+
     # place clones
-    pixel_link_loss = 0; # for summary only
+    pixel_link_loss = 0  # for summary only
     gradients = []
     for clone_idx, gpu in enumerate(config.gpus):
         do_summary = clone_idx == 0 # only summary on the first clone

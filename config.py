@@ -8,6 +8,8 @@ from nets import pixel_link_symbol
 import pixel_link
 slim = tf.contrib.slim
 
+# optimizer = 'Adam'
+optimizer = 'Momentum'
 #=====================================================================
 #====================Pre-processing params START======================
 # VGG mean parameters.
@@ -38,8 +40,8 @@ max_shorter_side = np.infty
 #=====================================================================
 #====================Post-processing params START=====================
 decode_method = pixel_link.DECODE_METHOD_join
-min_area = 100
-min_height = 6
+min_area = 300
+min_height = 12
 #====================Post-processing params END=======================
 #=====================================================================
 
@@ -58,19 +60,19 @@ pixel_neighbour_type = pixel_link.PIXEL_NEIGHBOUR_TYPE_8
 #pixel_neighbour_type = pixel_link.PIXEL_NEIGHBOUR_TYPE_4
 
 
-model_type = pixel_link_symbol.MODEL_TYPE_vgg16
-feat_layers = ['conv2_2', 'conv3_3', 'conv4_3', 'conv5_3', 'fc7']
-strides = [2]
-
 # model_type = pixel_link_symbol.MODEL_TYPE_vgg16
-# # with 512x512 input,
-# # conv3_3 output is 128x128x256
-# # conv4_3 output is 64x64x512
-# # conv5_3 output is 32x32x512
-# # fc7 output is 32x32x1024
-# # all output is after Relu
-# feat_layers = ['conv3_3', 'conv4_3', 'conv5_3', 'fc7']
-# strides = [4]
+# feat_layers = ['conv2_2', 'conv3_3', 'conv4_3', 'conv5_3', 'fc7']
+# strides = [2]
+
+model_type = pixel_link_symbol.MODEL_TYPE_vgg16
+# with 512x512 input,
+# conv3_3 output is 128x128x256
+# conv4_3 output is 64x64x512
+# conv5_3 output is 32x32x512
+# fc7 output is 32x32x1024
+# all output is after Relu
+feat_layers = ['conv3_3', 'conv4_3', 'conv5_3', 'fc7']
+strides = [4]
 #
 # model_type = pixel_link_symbol.MODEL_TYPE_mobilenetv2
 # # with 512x512 input,

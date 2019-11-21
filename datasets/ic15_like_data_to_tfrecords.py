@@ -37,6 +37,10 @@ def cvt_to_tfrecords(output_path, data_path, gt_path):
                 gt = util.str.split(line, ',')
                 oriented_box = [int(gt[i]) for i in range(8)]
                 oriented_box = np.asarray(oriented_box) / ([w, h] * 4)
+                # notice in the case of syntehsized data,
+                # it is possible some bbox will extend through the image boundary.                #
+                oriented_box = np.clip(oriented_box, 0.0, 1.0)
+
                 oriented_bboxes.append(oriented_box)
 
                 xs = oriented_box.reshape(4, 2)[:, 0]
