@@ -1,4 +1,5 @@
 #test code to make sure the ground truth calculation and data batch works well.
+import os
 
 import numpy as np
 import tensorflow as tf # test
@@ -15,16 +16,15 @@ import config
 # =========================================================================== #
 # Checkpoint and running Flags
 # =========================================================================== #
-tf.app.flags.DEFINE_string('train_dir', None, 
+tf.app.flags.DEFINE_string('train_dir', './checkpoint',
                            'the path to store checkpoints and eventfiles for summaries')
-
-tf.app.flags.DEFINE_string('checkpoint_path', None, 
+tf.app.flags.DEFINE_string('checkpoint_path', '',
    'the path of pretrained model to be used. If there are checkpoints in train_dir, this config will be ignored.')
 
 tf.app.flags.DEFINE_float('gpu_memory_fraction', -1, 
                           'the gpu memory fraction to be used. If less than 0, allow_growth = True is used.')
 
-tf.app.flags.DEFINE_integer('batch_size', None, 'The number of samples in each batch.')
+tf.app.flags.DEFINE_integer('batch_size', 8, 'The number of samples in each batch.')
 tf.app.flags.DEFINE_integer('num_gpus', 1, 'The number of gpus can be used.')
 tf.app.flags.DEFINE_integer('max_number_of_steps', 1000000, 'The maximum number of training steps.')
 tf.app.flags.DEFINE_integer('log_every_n_steps', 1, 'log frequency')
@@ -54,11 +54,11 @@ tf.app.flags.DEFINE_integer(
 # Dataset Flags.
 # =========================================================================== #
 tf.app.flags.DEFINE_string(
-    'dataset_name', None, 'The name of the dataset to load.')
+    'dataset_name', 'street_number', 'The name of the dataset to load.')
 tf.app.flags.DEFINE_string(
     'dataset_split_name', 'train', 'The name of the train/test split.')
 tf.app.flags.DEFINE_string(
-    'dataset_dir', None, 'The directory where the dataset files are stored.')
+    'dataset_dir', '/home/victor/workspace/datasets/scene_text/street_number_recognition/', 'The directory where the dataset files are stored.')
 tf.app.flags.DEFINE_integer('train_image_width', 512, 'Train image size')
 tf.app.flags.DEFINE_integer('train_image_height', 512, 'Train image size')
 
@@ -76,7 +76,8 @@ def config_initialization():
         log_file = 'log_train_pixel_link_%d_%d.log'%image_shape, 
                     log_path = FLAGS.train_dir, stdout = False, mode = 'a')
     
-    
+    # if there is a config.py in train_dir, use it to replace current one, otherwise copy current config.py to there
+    # this basically means we can use the same config.py if we need to resume training in future
     config.load_config(FLAGS.train_dir)
             
     config.init_config(image_shape, 
@@ -88,8 +89,8 @@ def config_initialization():
     batch_size = config.batch_size
     batch_size_per_gpu = config.batch_size_per_gpu
         
-    tf.summary.scalar('batch_size', batch_size)
-    tf.summary.scalar('batch_size_per_gpu', batch_size_per_gpu)
+    tf.summary.scalar('config/batch_size', batch_size)
+    tf.summary.scalar('config/batch_size_per_gpu', batch_size_per_gpu)
 
     util.proc.set_proc_name('train_pixel_link_on'+ '_' + FLAGS.dataset_name)
     
@@ -158,20 +159,24 @@ def create_dataset_batch_queue(dataset):
                 capacity = 50) 
     return batch_queue    
 
-def sum_gradients(clone_grads):                        
+
+def sum_gradients(clone_grads):
+    """
+    basically return a new list of (grad, variable) tuples, where each grad is the sum
+    of the corresponding grad in each clone (i.e. GPU)
+    :param clone_grads: [grad_and_vars_of_clone0, grad_and_vars_of_clone1, grad_and_vars_of_clone2, ...]
+    :return:
+    """
     averaged_grads = []
     for grad_and_vars in zip(*clone_grads):
+        # grad_and_vars is (grad_and_var_tuple_k_of_gpu0, grad_and_var_tuple_k_of_gpu1, grad_and_var_tuple_k_of_gpu2,..)
         grads = []
         var = grad_and_vars[0][1]
-        try:
-            for g, v in grad_and_vars:
-                assert v == var
-                grads.append(g)
+        for g, v in grad_and_vars:  # iterat over the copy of g/v of each gpu
+            assert v == var
+            grads.append(g)
             grad = tf.add_n(grads, name = v.op.name + '_summed_gradients')
-        except:
-            import pdb
-            pdb.set_trace()
-        
+
         averaged_grads.append((grad, v))
         
 #         tf.summary.histogram("variables_and_gradients_" + grad.op.name, grad)
@@ -186,12 +191,16 @@ def create_clones(batch_queue):
     with tf.device('/cpu:0'):
         global_step = slim.create_global_step()
         learning_rate = tf.constant(FLAGS.learning_rate, name='learning_rate')
-        optimizer = tf.train.MomentumOptimizer(learning_rate, 
-                               momentum=FLAGS.momentum, name='Momentum')
+        tf.summary.scalar('config/learning_rate', learning_rate)
 
-        tf.summary.scalar('learning_rate', learning_rate)
+        if getattr(config, 'optimizer', 'Momentum') == 'Adam':
+            optimizer = tf.train.AdamOptimizer(learning_rate, name='Adam')
+        else:
+            optimizer = tf.train.MomentumOptimizer(learning_rate, momentum=FLAGS.momentum, name='Momentum')
+        print('Using %s optimizer' % optimizer.get_name())
+
     # place clones
-    pixel_link_loss = 0; # for summary only
+    pixel_link_loss = 0  # for summary only
     gradients = []
     for clone_idx, gpu in enumerate(config.gpus):
         do_summary = clone_idx == 0 # only summary on the first clone
@@ -225,8 +234,8 @@ def create_clones(batch_queue):
                     clone_gradients = optimizer.compute_gradients(total_clone_loss)
                     gradients.append(clone_gradients)
                     
-    tf.summary.scalar('pixel_link_loss', pixel_link_loss)
-    tf.summary.scalar('regularization_loss', regularization_loss)
+    tf.summary.scalar('train/pixel_link_loss', pixel_link_loss)
+    tf.summary.scalar('train/regularization_loss', regularization_loss)
     
     # add all gradients together
     # note that the gradients do not need to be averaged, because the average operation has been done on loss.
@@ -252,8 +261,7 @@ def create_clones(batch_queue):
     train_op = control_flow_ops.with_dependencies(train_ops, pixel_link_loss, name='train_op')
     return train_op
 
-    
-    
+
 def train(train_op):
     summary_op = tf.summary.merge_all()
     sess_config = tf.ConfigProto(log_device_placement = False, allow_soft_placement = True)
@@ -280,7 +288,7 @@ def train(train_op):
 
 
 def main(_):
-    # The choice of return dataset object via initialization method maybe confusing, 
+    # The choice of return dataset object via initialization method maybe confusing,
     # but I need to print all configurations in this method, including dataset information. 
     dataset = config_initialization()   
     

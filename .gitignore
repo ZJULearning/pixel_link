@@ -99,3 +99,13 @@ ENV/
 
 # mypy
 .mypy_cache/
+/.idea
+/checkpoint
+/conda_venv
+/output
+/pretrained
+/train_data_viz
+/conda_venv.tf1.0
+/checkpoint.sav
+/checkpoints_worth_saving
+/temp

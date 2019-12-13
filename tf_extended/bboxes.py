@@ -92,7 +92,7 @@ def bboxes_filter_by_shorter_side(labels, bboxes, xs, ys, min_height = 16, max_h
     """
     Filtering bboxes by the length of shorter side 
     """
-    with tf.name_scope('bboxes_filter_by_shorter_side', [labels, bboxes]):
+    with tf.name_scope('bboxes_filter_by_shorter_side', values=[labels, bboxes]):
         bbox_rects = util.tf.min_area_rect(xs, ys)
         ws, hs = bbox_rects[:, 2], bbox_rects[:, 3]
         shorter_sides = tf.minimum(ws, hs)

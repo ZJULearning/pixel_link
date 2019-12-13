@@ -137,6 +137,7 @@ def convert_to_example(image_data, filename, labels, labels_text, bboxes, orient
             'image/encoded': bytes_feature(image_data)}))
     return example
 
+
 def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
     dataset_dir = util.io.get_absolute_path(dataset_dir)
     
@@ -144,6 +145,7 @@ def get_split(split_name, dataset_dir, file_pattern, num_samples, reader=None):
         file_pattern = util.io.join_path(dataset_dir, file_pattern % split_name)
     else:
         file_pattern = util.io.join_path(dataset_dir, file_pattern)
+
     # Allowing None in the signature so that dataset_factory can use the default.
     if reader is None:
         reader = tf.TFRecordReader

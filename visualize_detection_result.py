@@ -30,13 +30,14 @@ def visualize(image_root, det_root, output_root, gt_root = None):
         print '%d / %d: %s'%(image_idx + 1, len(image_names), image_name)
         image_data = read_image_file(image_name) # in BGR
         image_name = image_name.split('.')[0]
-        det_image = image_data.copy()
-        det_lines = read_det_file(image_name)
-        for line in det_lines:
-            draw_bbox(det_image, line, color = util.img.COLOR_GREEN)
-        output_path = util.io.join_path(output_root, '%s_pred.jpg'%(image_name))
-        util.img.imwrite(output_path, det_image)
-        print "Detection result has been written to ", util.io.get_absolute_path(output_path)
+        if det_root is not None:
+            det_image = image_data.copy()
+            det_lines = read_det_file(image_name)
+            for line in det_lines:
+                draw_bbox(det_image, line, color = util.img.COLOR_GREEN)
+            output_path = util.io.join_path(output_root, '%s_pred.jpg'%(image_name))
+            util.img.imwrite(output_path, det_image)
+            print "Detection result has been written to ", util.io.get_absolute_path(output_path)
         
         if gt_root is not None:
             gt_lines = read_gt_file(image_name)
@@ -48,12 +49,17 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='visualize detection result of pixel_link')
     parser.add_argument('--image', type=str, required = True,help='the directory of test image')
-    parser.add_argument('--gt', type=str, default=None,help='the directory of ground truth txt files')
-    parser.add_argument('--det', type=str, required = True, help='the directory of detection result')
+    parser.add_argument('--gt', type=str, default=None, help='the directory of ground truth txt files')
+    parser.add_argument('--det', type=str, default=None, help='the directory of detection result')
     parser.add_argument('--output', type=str, required = True, help='the directory to store images with bboxes')
     
     args = parser.parse_args()
+
     print('**************Arguments*****************')
     print(args)
     print('****************************************')
-    visualize(image_root = args.image, gt_root = args.gt, det_root = args.det, output_root = args.output)
+
+    if not args.det and not args.gt:
+        print("At least one of --gt or --det should be specified")
+    else:
+        visualize(image_root = args.image, gt_root = args.gt, det_root = args.det, output_root = args.output)

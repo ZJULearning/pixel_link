@@ -1,14 +1,20 @@
 import tensorflow as tf
+
+from .mobilenet import mobilenet_v2
+
+
 slim = tf.contrib.slim
 
 MODEL_TYPE_vgg16 = 'vgg16'
 MODEL_TYPE_vgg16_no_dilation = 'vgg16_no_dilation'
+MODEL_TYPE_mobilenetv2 = 'mobilenetv2'
 
 FUSE_TYPE_cascade_conv1x1_upsample_sum = 'cascade_conv1x1_upsample_sum'
 FUSE_TYPE_cascade_conv1x1_128_upsamle_sum_conv1x1_2 = \
                             'cascade_conv1x1_128_upsamle_sum_conv1x1_2'
 FUSE_TYPE_cascade_conv1x1_128_upsamle_concat_conv1x1_2 = \
                             'cascade_conv1x1_128_upsamle_concat_conv1x1_2'
+
 
 class PixelLinkNet(object):
     def __init__(self, inputs, is_training):
@@ -20,7 +26,26 @@ class PixelLinkNet(object):
         
     def _build_network(self):
         import config
-        if config.model_type == MODEL_TYPE_vgg16:
+        if config.model_type == MODEL_TYPE_mobilenetv2:
+            # keep this arg_scope code section such that self.arg_scope is set to
+            # the correct arg_scope, as it will be used later in the fusion layer
+            with slim.arg_scope([slim.conv2d],
+                        activation_fn=tf.nn.relu,
+                        weights_regularizer=slim.l2_regularizer(config.weight_decay),
+                        weights_initializer= tf.contrib.layers.xavier_initializer(),
+                        biases_initializer = tf.zeros_initializer()):
+                with slim.arg_scope([slim.conv2d, slim.max_pool2d],
+                                    padding='SAME') as sc:
+                    self.arg_scope = sc
+
+            with slim.arg_scope([slim.conv2d],
+                        weights_regularizer=slim.l2_regularizer(config.weight_decay),
+                        weights_initializer= tf.contrib.layers.xavier_initializer(),
+                        biases_initializer = tf.zeros_initializer()):
+                # set num_classes to 0 will remove the last logit layer
+                self.net, self.end_points = mobilenet_v2.mobilenet(self.inputs, num_classes=0)
+
+        elif config.model_type == MODEL_TYPE_vgg16:
             from nets import vgg
             with slim.arg_scope([slim.conv2d],
                         activation_fn=tf.nn.relu,
@@ -194,7 +219,7 @@ class PixelLinkNet(object):
     def build_loss(self, pixel_cls_labels, pixel_cls_weights, 
                         pixel_link_labels, pixel_link_weights,
                         do_summary = True
-                        ):      
+                        ):
         """
         The loss consists of two parts: pixel_cls_loss + link_cls_loss, 
             and link_cls_loss is calculated only on positive pixels
@@ -231,7 +256,7 @@ class PixelLinkNet(object):
             n_neg = tf.cast(n_neg, tf.int32)
             def has_neg():
                 neg_conf = tf.boolean_mask(scores, neg_mask)
-                vals, _ = tf.nn.top_k(-neg_conf, k=n_neg)
+                vals, _ = tf.nn.top_k(-neg_conf, k=n_neg)  # victorx: hard negative means smaller neg_conf value, hence the - sign
                 threshold = vals[-1]# a negtive value
                 selected_neg_mask = tf.logical_and(neg_mask, scores <= -threshold)
                 return selected_neg_mask
